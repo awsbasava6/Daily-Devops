@@ -10,69 +10,64 @@ Here’s how you can handle it step by step:
 
 1. Vertical Scaling (Short-Term Quick Fix)
 ⦁	If the spike is temporary and you’re running on a small instance type, you can:
-⦁	Stop the instance → Change instance type → Restart.
-⦁	Example: t3.medium → m5.large.
+            Stop the instance → Change instance type → Restart.
+            Example: t3.medium → m5.large.
 ⦁	Downside: downtime during resizing, and scaling up has limits.
 
 2. Horizontal Scaling (Long-Term, Recommended)
 ⦁	Use an Auto Scaling Group (ASG):
-⦁	Define min, max, desired capacity.
-⦁	Add scaling policies (e.g., scale out when CPU > 70% or request count > threshold).
+   Define min, max, desired capacity.
+   Add scaling policies (e.g., scale out when CPU > 70% or request count > threshold).
 ⦁	Use an Elastic Load Balancer (ALB/NLB) in front of EC2s:
-⦁	Distributes traffic across multiple instances.
-⦁	Ensures high availability across multiple AZs.
+   Distributes traffic across multiple instances.
+   Ensures high availability across multiple AZs.
 
 3. Caching & Offloading
 ⦁	Enable caching layers:
-⦁	Use Amazon CloudFront (CDN) to cache static assets close to users.
+     Use Amazon CloudFront (CDN) to cache static assets close to users.
 ⦁	Use ElastiCache (Redis/Memcached) to reduce DB load.
-⦁	Optimize DB with read replicas or Aurora Serverless if using RDS.
+   Optimize DB with read replicas or Aurora Serverless if using RDS.
 
 4. Decoupling Workloads
 ⦁	If spikes cause heavy background jobs:
-⦁	Offload to SQS + Lambda/EC2 workers.
-⦁	This smooths out sudden load instead of hitting your EC2 directly
+        Offload to SQS + Lambda/EC2 workers. This smooths out sudden load instead of hitting your EC2 directly
 5 Monitoring & Alerts
-⦁	Set up CloudWatch Alarms:
-⦁	CPU, memory (via CloudWatch Agent), latency, request count.
-⦁	Get notified before the instance is overwhelmed.
+⦁ Set up CloudWatch Alarms:
+     CPU, memory (via CloudWatch Agent), latency, request count.
+    Get notified before the instance is overwhelmed.
 ===================================================================================================================================================================================
 Q2)   Troubleshooting EC2 crashes.
 Here’s how you should approach it systematically:
 
 1. Check Instance Status
 ⦁	Go to EC2 console → Status Checks:
-⦁	System status check failed → Problem with AWS host (e.g., hardware, network, hypervisor). Open an AWS Support case or stop/start the instance.
-⦁	Instance status check failed → Problem with your instance (OS, boot issues, app crash).
+   	System status check failed → Problem with AWS host (e.g., hardware, network, hypervisor). Open an AWS Support case or stop/start the instance.
+    Instance status check failed → Problem with your instance (OS, boot issues, app crash).
 
 2. Review CloudWatch Metrics
 ⦁	Look at CPU, memory (if CloudWatch Agent is installed), disk I/O, and network traffic.
-⦁	If you see spikes just before the crash → could indicate memory leaks, runaway processes, or high I/O.
+      If you see spikes just before the crash → could indicate memory leaks, runaway processes, or high I/O.
 
 3. Inspect Logs
 ⦁	CloudWatch Logs (if configured) → App/system logs.
-⦁	EC2 Console → Get System Log:
-⦁	Shows boot issues, kernel panics, or misconfigurations.
-⦁	Serial Console (if enabled) → Useful for debugging low-level boot problems.
+       EC2 Console → Get System Log: Shows boot issues, kernel panics, or misconfigurations.
+       Serial Console (if enabled) → Useful for debugging low-level boot problems.
 
 4. Access the Root Volume
 If the instance won’t boot:
-⦁	Detach the root EBS volume.
-⦁	Attach it to another healthy instance.
-⦁	Mount and inspect:
-⦁	/var/log/messages, /var/log/syslog, /var/log/dmesg.
+⦁	Detach the root EBS volume,Attach it to another healthy instance.
+⦁	Mount and inspect: /var/log/messages, /var/log/syslog, /var/log/dmesg.
 ⦁	Fix bad configs (firewall rules, corrupted fstab, kernel params).
 ⦁	Reattach and restart.
 
 5. Networking & Security
 ⦁	If crash looks like "not reachable":
-⦁	Check Security Groups, NACLs, Route Tables.
-⦁	Ensure the instance still has a valid Elastic IP / Public IP.
+      heck Security Groups, NACLs, Route Tables. Ensure the instance still has a valid Elastic IP / Public IP.
 
 6. Application-Level Issues
 ⦁	Sometimes it’s not the EC2 itself but the app crashing.
-⦁	Restart services via SSM Session Manager (no need for SSH if agent is running).
-⦁	Check for memory leaks, unhandled exceptions, or DB connection limits.
+     	Restart services via SSM Session Manager (no need for SSH if agent is running).
+       Check for memory leaks, unhandled exceptions, or DB connection limits.
 
 7. Preventive Measures
 ⦁	Use Auto Scaling Groups (ASG) so a new instance replaces the crashed one automatically.
