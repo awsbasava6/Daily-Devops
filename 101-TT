@@ -73,4 +73,27 @@ If the instance won’t boot:
 ⦁	Use Auto Scaling Groups (ASG) so a new instance replaces the crashed one automatically.
 ⦁	Take regular AMIs & snapshots.
 ⦁	Implement CloudWatch alarms for proactive detection.
+===================================================================================================================================
+Q3) If your EC2 app cannot fetch images from the internet, here are the possible issues:
+
+1. Networking / Internet Access
+No Internet Gateway (IGW) attached to the VPC.
+Instance is in a private subnet with no NAT Gateway/NAT Instance.
+Route table misconfigured (missing route 0.0.0.0/0 → IGW/NAT).
+Security Group not allowing outbound HTTP/HTTPS (port 80/443).
+NACLs blocking outbound or inbound return traffic.
+
+2. OS / DNS Resolution
+Instance cannot resolve domains due to DNS issues:
+oWrong /etc/resolv.conf.
+oVPC DHCP option set not configured with correct DNS.
+Firewall rules (e.g., iptables/ufw) blocking outbound requests.
+
+3. IAM / Proxy Constraints
+If fetching from S3 or other AWS service → missing IAM role/policy.
+If organization uses a proxy for internet → app may need proxy configuration.
+
+4. Application-Level Issues
+App code misconfigured (wrong URL, HTTPS cert issue, timeout).
+Dependency/library issue in code (SSL verification failure, etc.).
 
