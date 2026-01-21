@@ -126,4 +126,34 @@ oSimplifies complex networking instead of building many point-to-point VPNs.
 If the question implies data transfer only (not continuous networking):
 oSnowball Edge → large physical device shipped to you for petabyte-scale data transfer.
 oDataSync → agent-based, syncs on-prem storage with AWS storage services (EFS, S3, FSx).
+========================================================================================================================
+QUESTION 5) I have two EC2 instances in two VPC one in each. First one isrunning frontend app and second one is running backend.These two apps need to communicate but they are not able to
+communicate. How will you fix this?
+ANSWER: Networking Between VPCs
+By default, VPCs are isolated. To allow communication:
+ Option A: VPC Peering
+o Create a VPC peering connection between VPC A and VPC B.
+o Update route tables in both VPCs to send traffic destined for the peer VPC
+CIDR through the peering link.
+ Option B: Transit Gateway (if multiple VPCs)
+o Attach both VPCs to a Transit Gateway and update routes.
+ Option C: PrivateLink (if only frontend needs to access backend service via
+NLB/ALB).
+
+2. Security Groups
+ Backend EC2’s SG must allow inbound traffic from frontend’s EC2 IP / SG on the
+required port (e.g., 8080, 443, etc.).
+ Frontend EC2’s SG must allow outbound traffic to backend.
+
+3. Network ACLs
+ Ensure NACLs allow traffic in both directions between subnets.
+
+4. DNS / Hostname Resolution
+ If using DNS names:
+o Enable DNS resolution in VPC settings.
+o Ensure the hostname resolves to private IP (if using PrivateLink/peering).
+
+5. Application-Level
+ Verify backend app is listening on the right interface (0.0.0.0, not just localhost).
+ Test connectivity with telnet/curl from frontend EC2 to backend EC2’s private IP.
 
