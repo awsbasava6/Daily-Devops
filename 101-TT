@@ -156,4 +156,10 @@ o Ensure the hostname resolves to private IP (if using PrivateLink/peering).
 5. Application-Level
  Verify backend app is listening on the right interface (0.0.0.0, not just localhost).
  Test connectivity with telnet/curl from frontend EC2 to backend EC2’s private IP.
+-=======================================================================================
+  QUESTION 6) I have an app running on EC2 instance. Product icons are stored in S3 bucket which needs to be shown on web home page. When my application is trying to tetch it's resulting into error. What might be the problem here?
+ANSWER: "If my app on EC2 cannot fetch product icons from S3, I’d check a few things: First, whether the EC2 instance has the right IAM role and permissions (s3:GetObject).
+If the bucket objects need to be public, I’d verify the bucket policy and object ACLs. Next, I’d confirm that the EC2 instance can actually reach S3 ,
+if it’s in a private subnet without internet, I’d configure a VPC S3 Endpoint or a NAT gateway. If the request is coming from the browser, I’d also check CORS settings. 
+Finally, I’d validate the app is using the correct S3 bucket region and endpoint."
 
